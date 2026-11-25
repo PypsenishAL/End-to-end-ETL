@@ -1,10 +1,9 @@
-select date_trunc('month', ordered_at) as timing,
-		currency,
-		sum(order_total) as monthly_revenue
-from 
-	orders
-where 
-	status = 'completed' and ordered_at is not null
-group by
-	date_trunc('month', ordered_at), currency
-order by timing, currency
+SELECT
+    DATE_TRUNC('month', o.ordered_at) AS timing,
+    o.currency,
+    SUM(o.order_total) AS monthly_revenue
+FROM block3_it_gorod_vozmite_pz_na_stazirovky.orders AS o
+WHERE o.status = 'completed'
+  AND o.ordered_at IS NOT NULL
+GROUP BY DATE_TRUNC('month', o.ordered_at), o.currency
+ORDER BY timing, o.currency;

@@ -3,6 +3,7 @@ import argparse
 import logging
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
+import pandas as pd
 
 from sqlalchemy import create_engine
 from sqlalchemy import text
@@ -75,10 +76,19 @@ def main():
         for sql_file in sql_files:
             with open(sql_file, 'r', encoding='utf-8') as read_file:
                 sql_text = read_file.read()
-                result = execute_sql(engine, text(sql_text))
+                result: pd.DataFrame = execute_sql(engine, text(sql_text))
+
+                sql_file_name = str(sql_file.name)
+                filtered_file_name = sql_file_name[:sql_file_name.find('.')] + '_' + 'result' + '.csv'
+
+                with open(sql_results_dir / filtered_file_name, 'w', encoding='utf-8', newline='') as write_file:
+                    result.to_csv(write_file,
+                                  sep=',',
+                                  encoding='utf-8')
+        logging.info('Выполнение аналитических запросов прошло успешно')
 
     except Exception as error:
-        print(f"Возникла ошибка {error} на этапе загрузке в БД")
+        print(f"Возникла ошибка {error} на этапе загрузке в БД и выполнение аналитических запросов")
     finally:
         engine.dispose()
 
